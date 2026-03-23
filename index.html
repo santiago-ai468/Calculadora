@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="contenedor">
+        <h1 class="titulo">🧮 Calculadora</h1>
+        <input type="text" class="pantalla" id="pantalla" value="0" readonly>
+        
+        <div class="botones-principal">
+            <div class="botones-izquierda">
+                <div class="botones-numeros">
+                    <button onclick="agregarNumero('7')">7</button>
+                    <button onclick="agregarNumero('8')">8</button>
+                    <button onclick="agregarNumero('9')">9</button>
+
+                    <button onclick="agregarNumero('4')">4</button>
+                    <button onclick="agregarNumero('5')">5</button>
+                    <button onclick="agregarNumero('6')">6</button>
+
+                    <button onclick="agregarNumero('1')">1</button>
+                    <button onclick="agregarNumero('2')">2</button>
+                    <button onclick="agregarNumero('3')">3</button>
+
+                    <button class="limpiar" onclick="limpiar()">C</button>
+                    <button onclick="agregarNumero('0')">0</button>
+                    <button class="retroceso" onclick="retroceso()">⌫</button>
+                </div>
+                <button class="igual" onclick="calcular()">=</button>
+            </div>
+
+            <div class="botones-derecha">
+                <div class="botones-operadores">
+                    <button class="operador" onclick="agregarOperador('+')">+</button>
+                    <button class="operador" onclick="agregarOperador('-')">−</button>
+                    <button class="operador" onclick="agregarOperador('*')">×</button>
+                    <button class="operador" onclick="agregarOperador('/')">÷</button>
+                </div>
+                <button class="punto" onclick="agregarNumero('.')">.</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const pantalla = document.getElementById('pantalla');
+        let actual = '0';
+        let operador = null;
+        let anterior = null;
+        let nuevo = true;
+
+        function agregarNumero(num) {
+            if (nuevo && num !== '.') {
+                actual = num;
+                nuevo = false;
+            } else if (!(num === '.' && actual.includes('.'))) {
+                actual += num;
+            }
+            actualizarPantalla();
+        }
+
+        function agregarOperador(op) {
+            if (anterior === null) {
+                anterior = actual;
+            } else if (!nuevo) {
+                calcularIntermedio();
+            }
+            operador = op;
+            nuevo = true;
+        }
+
+        function calcularIntermedio() {
+            try {
+                const resultado = eval(anterior + operador + actual);
+                actual = resultado.toString();
+                anterior = null;
+                operador = null;
+                actualizarPantalla();
+            } catch {
+                actual = 'ERROR';
+                operador = null;
+                anterior = null;
+                actualizarPantalla();
+            }
+        }
+
+        function calcular() {
+            if (operador !== null && anterior !== null) {
+                try {
+                    const resultado = eval(anterior + operador + actual);
+                    actual = resultado.toString();
+                    anterior = null;
+                    operador = null;
+                    nuevo = true;
+                    actualizarPantalla();
+                } catch {
+                    actual = 'ERROR';
+                    operador = null;
+                    anterior = null;
+                    actualizarPantalla();
+                }
+            }
+        }
+
+        function limpiar() {
+            actual = '0';
+            anterior = null;
+            operador = null;
+            nuevo = true;
+            actualizarPantalla();
+        }
+
+        function retroceso() {
+            if (actual.length > 1) {
+                actual = actual.slice(0, -1);
+            } else {
+                actual = '0';
+            }
+            nuevo = false;
+            actualizarPantalla();
+        }
+
+        function actualizarPantalla() {
+            pantalla.value = actual;
+        }
+
+        // Event listeners para el teclado
+        document.addEventListener('keydown', function(evento) {
+            const tecla = evento.key;
+
+            // Números 0-9
+            if (tecla >= '0' && tecla <= '9') {
+                agregarNumero(tecla);
+            }
+
+            // Operadores
+            if (tecla === '+') {
+                evento.preventDefault();
+                agregarOperador('+');
+            }
+            if (tecla === '-') {
+                evento.preventDefault();
+                agregarOperador('-');
+            }
+            if (tecla === '*') {
+                evento.preventDefault();
+                agregarOperador('*');
+            }
+            if (tecla === '/') {
+                evento.preventDefault();
+                agregarOperador('/');
+            }
+
+            // Punto decimal
+            if (tecla === '.') {
+                evento.preventDefault();
+                agregarNumero('.');
+            }
+
+            // Enter o = para calcular
+            if (tecla === 'Enter' || tecla === '=') {
+                evento.preventDefault();
+                calcular();
+            }
+
+            // Backspace para retroceso
+            if (tecla === 'Backspace') {
+                evento.preventDefault();
+                retroceso();
+            }
+
+            // C o Delete para limpiar
+            if (tecla === 'c' || tecla === 'C' || tecla === 'Delete') {
+                evento.preventDefault();
+                limpiar();
+            }
+
+            // Escape también limpia
+            if (tecla === 'Escape') {
+                evento.preventDefault();
+                limpiar();
+            }
+        });
+    </script>
+</body>
+</html>
